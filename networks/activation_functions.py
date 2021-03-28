@@ -1,8 +1,5 @@
 import numpy as np
 
-# Collection of activation functions
-# Reference: https://en.wikipedia.org/wiki/Activation_function
-
 class Sigmoid():
     def __call__(self, x):
         return 1 / (1 + np.exp(-x))
@@ -54,8 +51,6 @@ class ELU():
         return np.where(x >= 0.0, 1, self.__call__(x) + self.alpha)
 
 class SELU():
-    # Reference : https://arxiv.org/abs/1706.02515,
-    # https://github.com/bioinf-jku/SNNs/blob/master/SelfNormalizingNetworks_MLP_MNIST.ipynb
     def __init__(self):
         self.alpha = 1.6732632423543772848170429916717
         self.scale = 1.0507009873554804934193349852946 
@@ -74,7 +69,7 @@ class SoftPlus():
         return 1 / (1 + np.exp(-x))
 
 
-class MyActivation:
+class PhaseActivation:
 
     def __call__(self, x):
         dz = 1/500
@@ -93,6 +88,4 @@ class MyActivation:
         print("abs2 = ",abs2)
         print("grad = ",grad)
         """
-        #print("x = ",x)
-        #print("grad = ",grad)
         return grad

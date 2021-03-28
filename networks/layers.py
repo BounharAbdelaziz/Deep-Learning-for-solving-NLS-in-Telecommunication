@@ -7,9 +7,10 @@ import copy
 import sys
 sys.path.append("C:/Users/admin/Desktop/IP Paris/MICAS/Cours/910/913 - Deep Learning/Project/")
 
-from networks.activation_functions import Sigmoid, ReLU, SoftPlus, LeakyReLU, TanH, ELU, SELU, Softmax, MyActivation
+from networks.activation_functions import Sigmoid, ReLU, SoftPlus, LeakyReLU, TanH, ELU, SELU, Softmax, PhaseActivation
 
 class Layer(object):
+    """ Parent class of all layers architectures """
 
     def set_input_shape(self, shape):
         """ Sets the shape that the layer expects of the input in the forward
@@ -41,15 +42,14 @@ class Layer(object):
 
 
 class Dense(Layer):
-    """A fully-connected NN layer.
-    Parameters:
-    -----------
-    n_units: int
-        The number of neurons in the layer.
-    input_shape: tuple
-        The expected input shape of the layer. For dense layers a single digit specifying
-        the number of features of the input. Must be specified if it is the first layer in
-        the network.
+    """A fully-connected (MLP) NN layer.
+
+        @param n_units: int
+            The number of neurons in the layer.
+        @param input_shape: tuple
+            The expected input shape of the layer. For dense layers a single digit specifying
+            the number of features of the input. Must be specified if it is the first layer in
+            the network.
     """
     def __init__(self, n_units, input_shape=None):
         self.layer_input = None
@@ -100,21 +100,19 @@ class Dense(Layer):
 class RNN(Layer):
     """A Vanilla Fully-Connected Recurrent Neural Network layer.
 
-    Parameters:
-    -----------
-    n_units: int
-        The number of hidden states in the layer.
-    activation: string
-        The name of the activation function which will be applied to the output of each state.
-    bptt_trunc: int
-        Decides how many time steps the gradient should be propagated backwards through states
-        given the loss gradient for time step t.
-    input_shape: tuple
-        The expected input shape of the layer. For dense layers a single digit specifying
-        the number of features of the input. Must be specified if it is the first layer in
-        the network.
+        @param n_units: int
+            The number of hidden states in the layer.
+        @param activation: string
+            The name of the activation function which will be applied to the output of each state.
+        @param bptt_trunc: int
+            Decides how many time steps the gradient should be propagated backwards through states
+            given the loss gradient for time step t.
+        @param input_shape: tuple
+            The expected input shape of the layer. For dense layers a single digit specifying
+            the number of features of the input. Must be specified if it is the first layer in
+            the network.
 
-    Reference:
+    Please refer to this tutorial :
     http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-2-implementing-a-language-model-rnn-with-python-numpy-and-theano/
     """
     def __init__(self, n_units, activation='tanh', bptt_trunc=5, input_shape=None):
@@ -202,21 +200,14 @@ class RNN(Layer):
 class Conv2D(Layer):
     """A 2D Convolution Layer.
 
-    Parameters:
-    -----------
-    n_filters: int
-        The number of filters that will convolve over the input matrix. The number of channels
-        of the output shape.
-    filter_shape: tuple
-        A tuple (filter_height, filter_width).
-    input_shape: tuple
-        The shape of the expected input of the layer. (batch_size, channels, height, width)
-        Only needs to be specified for first layer in the network.
-    padding: string
-        Either 'same' or 'valid'. 'same' results in padding being added so that the output height and width
-        matches the input height and width. For 'valid' no padding is added.
-    stride: int
-        The stride length of the filters during the convolution over the input.
+        @param n_filters: int ; The number of filters that will convolve over the input matrix. The number of channels
+            of the output shape.
+        @param filter_shape: tuple ; A tuple (filter_height, filter_width).
+        @param input_shape: tuple ; The shape of the expected input of the layer. (batch_size, channels, height, width)
+            Only needs to be specified for first layer in the network.
+        @param padding: string ; Either 'same' or 'valid'. 'same' results in padding being added so that the output height 
+                and width matches the input height and width. For 'valid' no padding is added.
+        @param stride: int ; The stride length of the filters during the convolution over the input.
     """
     def __init__(self, n_filters, filter_shape, input_shape=None, padding='same', stride=1):
         self.n_filters = n_filters
@@ -290,8 +281,7 @@ class Conv2D(Layer):
 
 
 class BatchNormalization(Layer):
-    """Batch normalization.
-    """
+    """ Batch normalization Layer implementation """
     def __init__(self, momentum=0.99):
         self.momentum = momentum
         self.trainable = True
@@ -365,8 +355,7 @@ class BatchNormalization(Layer):
 
 
 class PoolingLayer(Layer):
-    """A parent class of MaxPooling2D and AveragePooling2D
-    """
+    """ A parent class of MaxPooling2D and AveragePooling2D """
     def __init__(self, pool_shape=(2, 2), stride=1, padding=0):
         self.pool_shape = pool_shape
         self.stride = stride
@@ -441,15 +430,13 @@ class ConstantPadding2D(Layer):
     """Adds rows and columns of constant values to the input.
     Expects the input to be of shape (batch_size, channels, height, width)
 
-    Parameters:
-    -----------
-    padding: tuple
-        The amount of padding along the height and width dimension of the input.
-        If (pad_h, pad_w) the same symmetric padding is applied along height and width dimension.
-        If ((pad_h0, pad_h1), (pad_w0, pad_w1)) the specified padding is added to beginning and end of
-        the height and width dimension.
-    padding_value: int or tuple
-        The value the is added as padding.
+        @param padding: tuple
+            The amount of padding along the height and width dimension of the input.
+            If (pad_h, pad_w) the same symmetric padding is applied along height and width dimension.
+            If ((pad_h0, pad_h1), (pad_w0, pad_w1)) the specified padding is added to beginning and end of
+            the height and width dimension.
+        @param padding_value: int or tuple
+            The value the is added as padding.
     """
     def __init__(self, padding, padding_value=0):
         self.padding = padding
@@ -480,16 +467,15 @@ class ConstantPadding2D(Layer):
 
 
 class ZeroPadding2D(ConstantPadding2D):
-    """Adds rows and columns of zero values to the input.
-    Expects the input to be of shape (batch_size, channels, height, width)
+    """ Adds rows and columns of zero values to the input.
+        Expects the input to be of shape (batch_size, channels, height, width)
 
-    Parameters:
-    -----------
-    padding: tuple
-        The amount of padding along the height and width dimension of the input.
-        If (pad_h, pad_w) the same symmetric padding is applied along height and width dimension.
-        If ((pad_h0, pad_h1), (pad_w0, pad_w1)) the specified padding is added to beginning and end of
-        the height and width dimension.
+        @param padding: tuple
+            The amount of padding along the height and width dimension of the input.
+            If (pad_h, pad_w) the same symmetric padding is applied along height and width dimension.
+            If ((pad_h0, pad_h1), (pad_w0, pad_w1)) the specified padding is added to beginning and end of
+            the height and width dimension.
+
     """
     def __init__(self, padding):
         self.padding = padding
@@ -501,7 +487,7 @@ class ZeroPadding2D(ConstantPadding2D):
 
 
 class Flatten(Layer):
-    """ Turns a multidimensional matrix into two-dimensional """
+    """ Turns a multidimensional matrix into two-dimensional ,generally used when combining Conv2D layers with Dense Layers """
     def __init__(self, input_shape=None):
         self.prev_shape = None
         self.trainable = True
@@ -522,10 +508,7 @@ class UpSampling2D(Layer):
     """ Nearest neighbor up sampling of the input. Repeats the rows and
     columns of the data by size[0] and size[1] respectively.
 
-    Parameters:
-    -----------
-    size: tuple
-        (size_y, size_x) - The number of times each axis will be repeated.
+        @param size: tuple ; (size_y, size_x) - The number of times each axis will be repeated.
     """
     def __init__(self, size=(2,2), input_shape=None):
         self.prev_shape = None
@@ -552,10 +535,7 @@ class UpSampling2D(Layer):
 class Reshape(Layer):
     """ Reshapes the input tensor into specified shape
 
-    Parameters:
-    -----------
-    shape: tuple
-        The shape which the input shall be reshaped to.
+        @param shape: tuple ; The shape which the input shall be reshaped to.
     """
     def __init__(self, shape, input_shape=None):
         self.prev_shape = None
@@ -575,13 +555,9 @@ class Reshape(Layer):
 
 
 class Dropout(Layer):
-    """A layer that randomly sets a fraction p of the output units of the previous layer
-    to zero.
+    """A layer that randomly sets a fraction p of the output units of the previous layer to zero.
 
-    Parameters:
-    -----------
-    p: float
-        The probability that unit x is set to zero.
+        @param p: float ; The probability that unit x is set to zero.
     """
     def __init__(self, p=0.2):
         self.p = p
@@ -613,16 +589,14 @@ activation_functions = {
     'leaky_relu': LeakyReLU,
     'tanh': TanH,
     'softplus': SoftPlus,
-    'myactivation': MyActivation    
+    'phase_activation': PhaseActivation    
 }
 
 class Activation(Layer):
     """A layer that applies an activation operation to the input.
 
-    Parameters:
-    -----------
-    name: string
-        The name of the activation function that will be used.
+        @param name: string
+            The name of the activation function that will be used.
     """
 
     def __init__(self, name):
@@ -667,7 +641,6 @@ def determine_padding(filter_shape, output_shape="same"):
         return (pad_h1, pad_h2), (pad_w1, pad_w2)
 
 
-# Reference: CS231n Stanford
 def get_im2col_indices(images_shape, filter_shape, padding, stride=1):
     # First figure out what the size of the output should be
     batch_size, channels, height, width = images_shape
@@ -691,7 +664,6 @@ def get_im2col_indices(images_shape, filter_shape, padding, stride=1):
 
 # Method which turns the image shaped input to column shape.
 # Used during the forward pass.
-# Reference: CS231n Stanford
 def image_to_column(images, filter_shape, stride, output_shape='same'):
     filter_height, filter_width = filter_shape
 
@@ -715,7 +687,6 @@ def image_to_column(images, filter_shape, stride, output_shape='same'):
 
 # Method which turns the column shaped input to image shape.
 # Used during the backward pass.
-# Reference: CS231n Stanford
 def column_to_image(cols, images_shape, filter_shape, stride, output_shape='same'):
     batch_size, channels, height, width = images_shape
     pad_h, pad_w = determine_padding(filter_shape, output_shape)

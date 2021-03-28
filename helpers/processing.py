@@ -11,13 +11,14 @@ from tqdm import tqdm
 
 def fromComplexToReal(vect_im):
 
-# vect_real = []
+    """ Convert data from C to IR, from complex domain to real domain """
+
+    # init variables
     N = vect_im.shape[0]
     M = vect_im.shape[1]*2
     vect_real = np.zeros((N,M))
 
     print("\n [INFO] {fromComplexToReal} runing...")
-    print("\n [INFO] vect_real.shape : " , vect_real.shape)
 
     for i in tqdm(range(len(vect_im))) :
         tmp = []
@@ -35,10 +36,11 @@ def fromComplexToReal(vect_im):
 
 def fromRealToComplex(vect_real):
 
+    """ Reverse conversion of data from IR to C, from real domain to complex domain """
+
     # init variables
     N = vect_real.shape[0]
-    M = vect_real.shape[1]//2
-    
+    M = vect_real.shape[1]//2    
     vect_im = np.zeros((N,M), dtype=np.complex64)  
 
     print("\n [INFO] {fromRealToComplex} runing...")
@@ -67,7 +69,8 @@ def fromRealToComplex(vect_real):
 
 #----------------------------------------------------------------------------#
 
-def prepareDataFrame(X, y, scaling) :
+def prepareDataFrame(X, y, scaling=False) :
+    """ Prepare a dataframe from a complex X and y data points """
 
     X_real = fromComplexToReal(X)
     y_real = fromComplexToReal(y)
@@ -89,7 +92,11 @@ def prepareDataFrame(X, y, scaling) :
 #----------------------------------------------------------------------------#
 
 def prepareTrainAndTestData(df, withReshape, ts):
-
+    """ Split the Training and Testing data.
+        @param df : pandas a dataframe, or numpy array of datas (X+y) in real domain.
+        @param withReshape : boolean to make training and testing as tensors. Generaly True.
+        @param df : test size.
+    """
     N_samples = df.shape[0]
     N_features = df.shape[1]//2
     N_cols = df.shape[1]

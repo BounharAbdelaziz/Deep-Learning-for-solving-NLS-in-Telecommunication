@@ -124,6 +124,7 @@ def generate_dataset_batch(nbrOfObservations, parameters,  transmitor, modulator
 
 #-----------------------------------------------------------------------------------------#
 
+@DeprecationWarning
 def createDataFrame(X,y) :
     X_ = np.column_stack((X.real,X.imag))
     y_ = np.column_stack((y.real,y.imag))
@@ -136,7 +137,10 @@ def createDataFrame(X,y) :
 
 #-----------------------------------------------------------------------------------------#
 
+@DeprecationWarning
 def test_dataset(X, parameters, channel, equalizer, index):
+
+    """ Plots some visuals of a generated dataset (at index) """
 
     withPlot = True
     q0t = X[index] #fromRealToComplex(l)
@@ -193,6 +197,8 @@ def test_dataset(X, parameters, channel, equalizer, index):
 
 
 def run(transmitor, modulator, channel, equalizer, parameters, isGaussian=False, s=2):
+
+    """ runs all the functions to see the output of each module of the channel """
 
     # builds the constellation 
     constellation = transmitor.build_constellations(parameters.M) # 16-QAM
@@ -270,6 +276,10 @@ def run(transmitor, modulator, channel, equalizer, parameters, isGaussian=False,
 #-----------------------------------------------------------------------------------------#
 
 def test(X, parameter, nnetGen, channel,equalizer):
+
+    """ Tests the neural net generator w.r.t an input X of modulated signal, if
+        X is none, then it creates a Gaussian vector 
+    """
 
     # Signal
     if X is None :
@@ -356,6 +366,8 @@ def test(X, parameter, nnetGen, channel,equalizer):
 #-----------------------------------------------------------------------------------------#
 
 def test_generated(X, y, index, parameter, channel, equalizer):
+
+    """ Tests a generated y (at index) w.r.t an input X (at index) of modulated signal """
 
     # Signal : X
     X = np.squeeze(X[index])
@@ -458,6 +470,9 @@ def test_generated(X, y, index, parameter, channel, equalizer):
 #-----------------------------------------------------------------------------------------#
 
 def train(model, X_train, X_test, y_train, y_test, Nepochs, batchSize, earlystopping_patience=5) :
+
+    """ Trains a tensorflow model """
+
     # Fiting the model
     log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
@@ -481,6 +496,9 @@ def train(model, X_train, X_test, y_train, y_test, Nepochs, batchSize, earlystop
 #-----------------------------------------------------------------------------------------------------#
 
 def test_model(model, X_test, y_test, history, index_pred, with_error_plots, all_plots=False) :
+
+    """ Test a tensorflow model """
+
     with_eval = False
     y_pred = evaluate(model, X_test, y_test, history, index_pred, with_eval, with_error_plots, all_plots)
     return y_pred
@@ -490,6 +508,7 @@ def test_model(model, X_test, y_test, history, index_pred, with_error_plots, all
 
 def evaluate(model, X_test, y_test, history, parameters, channel, equalizer, index_pred, with_eval, with_error_plots, all_plots=False):
 
+    """ Plots some visuals of the original and predicted data to compare them """
     # evaluating and printing results 
     if with_eval :
         score = model.evaluate(X_test, y_test, verbose = 0) 
@@ -538,8 +557,11 @@ def evaluate(model, X_test, y_test, history, parameters, channel, equalizer, ind
 
 #-----------------------------------------------------------------------------------------------------#
 
+@DeprecationWarning
 def allPlots(parameters, y_qzt, y_qzf, y_qzt_equalized_t, y_qzt_equalized_f, y_pred, y_pred_equalized_t, y_pred_equalized_f):
     
+    """ Plots some visuals of the equalized original and predicted data to compare them """
+
     fig2, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(7, figsize = (15, 15))
     fig2.tight_layout(pad=7.0)
 
@@ -592,6 +614,8 @@ def allPlots(parameters, y_qzt, y_qzf, y_qzt_equalized_t, y_qzt_equalized_f, y_p
 
 def plotResults(X, y_pred, parameters):
 
+    """ Plots results in frequency domain """
+
     y_pred_im = fromRealToComplex(y_pred.T).T
     X = fromRealToComplex(X.T).T
 
@@ -602,21 +626,23 @@ def plotResults(X, y_pred, parameters):
     fig3.tight_layout(pad=7.0)
 
     ###
-    ax5.plot(parameters.f, np.absolute(Xf), 'b-', label='nnet')
-    ax5.set_xlabel("Time")
+    ax5.plot(parameters.f, np.squeeze(np.absolute(Xf)), 'b-', label='nnet')
+    ax5.set_xlabel("Frequency")
     ax5.set_ylabel("Abs(y_gen)")
     ax5.set_title("NNetGen - Time plot - |y_gen|")
 
     ###
     ax5.plot(parameters.f, np.squeeze(np.absolute(Yf)), 'r-', label='nnet')
-    ax5.set_xlabel("Freq")
+    ax5.set_xlabel("Frequency")
     ax5.set_ylabel("Abs(y_gen)")
     ax5.set_title("NNetGen - Freq plot - |y_gen|")
 
 #-----------------------------------------------------------------------------------------------------#
 
 def test_prediction(y_test, y_pred, index_pred, parameter):
-    
+
+    """ Plots results in time and frequency domain """
+
     print("y_pred : ",y_pred)
     print("y_pred.shape : ",y_pred.shape)
 
@@ -701,6 +727,8 @@ def test_prediction(y_test, y_pred, index_pred, parameter):
 
 def test_predicted(y_test, y_pred, index, parameter):
 
+    """ Plots results in time domain """
+
     #X = X_test[index]
 
     print("y_pred : ",y_pred)
@@ -748,8 +776,9 @@ def test_predicted(y_test, y_pred, index, parameter):
 
 def test_ypred(y_pred, parameter):
     
+    """ Plots results in time domain """
 
-    # Predicted
+    # Predicted 
     y_pred = y_pred.reshape(1,-1,1)
     y_pred_im = fromRealToComplex(y_pred)
     

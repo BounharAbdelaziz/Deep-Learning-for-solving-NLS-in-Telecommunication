@@ -13,15 +13,10 @@ from utils.misc import bar_widgets
 class NeuralNetwork():
     """Neural Network. Deep Learning base model.
 
-    Parameters:
-    -----------
-    optimizer: class
-        The weight optimizer that will be used to tune the weights in order of minimizing
-        the loss.
-    loss: class
-        Loss function used to measure the model's performance. SquareLoss or CrossEntropy.
-    validation: tuple
-        A tuple containing validation data and labels (X, y)
+        @param optimizer: class ; The weight optimizer that will be used to tune the weights in order of minimizing
+            the loss.
+        @param loss: class ; Loss function used to measure the model's performance. SquareLoss or CrossEntropy.
+        @param validation: tuple ;A tuple containing validation data and labels (X, y).
     """
     def __init__(self, optimizer, loss, validation_data=None):
         self.optimizer = optimizer
