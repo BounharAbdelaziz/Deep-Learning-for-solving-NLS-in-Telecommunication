@@ -18,6 +18,7 @@ from utils.misc import bar_widgets
 from networks.layers import Dense, Dropout, Conv2D, Flatten, Activation, MaxPooling2D, AveragePooling2D, ZeroPadding2D, BatchNormalization, RNN
 
 
+
 def main():
 
     #----------

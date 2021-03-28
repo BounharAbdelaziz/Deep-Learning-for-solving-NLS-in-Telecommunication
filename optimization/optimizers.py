@@ -5,10 +5,6 @@ sys.path.append("C:/Users/admin/Desktop/IP Paris/MICAS/Cours/910/913 - Deep Lear
 
 from utils import make_diagonal, normalize
 
-# Optimizers for models that use gradient based methods for finding the 
-# weights that minimizes the loss.
-# A great resource for understanding these methods: 
-# http://sebastianruder.com/optimizing-gradient-descent/index.html
 
 class StochasticGradientDescent():
     def __init__(self, learning_rate=0.01, momentum=0):

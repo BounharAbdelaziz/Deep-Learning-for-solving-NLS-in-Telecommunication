@@ -16,10 +16,27 @@ class Transmitor :
         n=1
         return np.random.binomial(n, p, size=N)
 
+    #-------------------------------------------------------------------------------------------------#
+
+    def build_constellations(self,M):
+        k = int(np.log2(M))
+        N = np.arange(0, M, dtype=np.int32)
+        coords = []
+        binaryStr = []
+        binaryArr = np.zeros((M, k), dtype=np.uint8)
+        for n in N:
+            bin, code = self.gray_coding(n, M)
+            coords.append(code)
+            binaryArr[n] = bin
+            binaryStr.append(np.binary_repr(n, width=k))
+
+        coords = np.array(coords)
+
+        return coords, binaryStr, binaryArr
 
     #-------------------------------------------------------------------------------------------------#
 
-    def build_constellations(self, M):
+    def build_constellations_2(self, M):
     
         """ Builds a M-QAM constellation.
             @param M : Number of symbols.
@@ -54,10 +71,11 @@ class Transmitor :
 
     #-------------------------------------------------------------------------------------------------#
 
-    def bit_to_symb(self, b, cnt):
+    def bit_to_symb(self, b, M=16):
         """ Creates a mapping between bits sequences and symbols.
-        @param b : N-bit sequence
-        @param cnt : constellation
+            @param b : N-bit sequence
+            @param cnt : constellation
+            @param M : Number of symbols in the constellation
         """
 
         k = int(np.log2(M))
@@ -70,14 +88,14 @@ class Transmitor :
         symboles = []
         for bi in bits:
             biDec = np.packbits(np.hstack((np.zeros(8-k, dtype=np.uint8), bi)))[0]
-            bin, code = self.grayCoding(biDec, M)
+            bin, code = self.gray_coding(biDec, M)
             symboles.append(code)
 
         return np.array(symboles)
 
     #-------------------------------------------------------------------------------------------------#
 
-    def grayCoding(self, n, M):
+    def gray_coding(self, n, M):
         k = int(np.log2(M))
 
         reAxis = np.hstack((np.arange(-(np.sqrt(M)//2), 0, step=1),

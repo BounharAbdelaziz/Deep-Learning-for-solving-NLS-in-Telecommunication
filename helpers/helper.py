@@ -14,13 +14,132 @@ sys.path.append("C:/Users/admin/Desktop/IP Paris/MICAS/Cours/910/913 - Deep Lear
 from helpers.processing import fromRealToComplex
 from sklearn.metrics import mean_squared_error
 
+from Channel.parameters import *
+from Channel.transmitor import *
+from Channel.modulator import *
+from Channel.channel import *
+from Channel.equalizer import *
+from Channel.demodulator import *
+from Channel.detector import *
+from nnet_Generator.NNetGenerator import *
 
-    
 
 #-----------------------------------------------------------------------------------------#
 
 # Generating the dataset
-def generateDataset(nbrOfObservations, parameters, transmitor, modulator, nnetGen, isGaussian =False):
+def generateDataset(nbrOfObservations, parameters, transmitor, modulator, equalizer, nnetGen, demodulator, detector, isGaussian =False):
+
+    X = np.ndarray((nbrOfObservations, parameters.N), dtype=np.complex128)
+    y = np.ndarray((nbrOfObservations, parameters.N), dtype=np.complex128)    
+    bits_in = np.ndarray((nbrOfObservations, parameters.nb), dtype=np.int)
+    bhat_out = np.ndarray((nbrOfObservations, parameters.nb), dtype=np.int)
+    symb_in = np.ndarray((nbrOfObservations, parameters.n))
+    symb_out = np.ndarray((nbrOfObservations, parameters.n))
+
+
+    print("[INFO] Generating the dataset...")
+
+    for i in tqdm(range(nbrOfObservations)):
+        
+        # Constellation
+        constellation = transmitor.build_constellations(parameters.M)
+        
+        #source
+        source = transmitor.source(parameters.nb , parameters.p) # USE IT FOR NEXT PART OF BITS
+        
+        # Bits to Symboles - symbol sequence
+        bitsToSymbols = transmitor.bit_to_symb(source, parameters.M)
+
+        # symbol sequence, we create a list of values of the complex symbols to use them in modulation
+        s = transmitor.bit_to_symb(source, parameters.M)
+        
+        # channel - we take gaussian input
+        if isGaussian:
+            q0t = parameters.A*np.exp(-parameters.t**2) 
+
+        else :
+            q0t = modulator.mod(parameters.t,s, parameters.B)  
+        
+        # Neural Net Generator
+        y_gen = nnetGen.nnet_gen(q0t)
+        # equalized y_gen
+        qzte, qzfe = equalizer.equalize(parameters.t, y_gen, parameters.z) # equalized output
+        qzte = qzte.reshape(1,-1)
+        # demodulation
+        shat = demodulator.demod(parameters.t, parameters.dt, qzte, parameters.B, parameters.n)
+
+        # detection
+        stilde, indexes = detector.detector(shat, parameters.M)
+        bhat = detector.symbols_to_bit(indexes, parameters.M)
+        
+        # SOURCE IS THE SEQUENCE OF BITS TO BE LEARNED
+        
+        # Modulated signal
+        X[i] = np.squeeze(q0t)
+        # Neural Net Generator
+        y[i] = y_gen
+        # original bit sequence (source)
+        bits_in[i] = source
+        # estimated bit sequence
+        bhat_out[i] = bhat
+        # original symbol sequence (source)
+
+        symb_in[i] = np.squeeze(s)
+        # estimated symbol sequence
+        symb_out[i] = np.squeeze(stilde)
+        
+    print("[INFO] The dataset is ready now !")
+
+    return X, y, bits_in, bhat_out, symb_in, symb_out
+
+#-----------------------------------------------------------------------------------------#
+
+    
+def generate_dataset_multiple_power_symbols(nbrOfObservations, nsymbols_arr, M_arr, power_arr, isGaussian=False):
+       
+    # bandwidth
+    bandwidth = 1
+    # Sample size
+    Nt = 2**10
+    # Number of Layers of the Generative network
+    nLayers = 500
+    
+    for power in power_arr :
+        for M in M_arr :
+            for nsymbols in nsymbols_arr :
+                
+                # Number of bits
+                nb = int(nsymbols * np.log2(M)) 
+                timeMesh = int( (nb/bandwidth)+ (10*2/ nb) )
+                # Initialize parameters
+                parameters = Parameters(bandwidth, nsymbols, M, Nt, nLayers, timeMesh)
+                # Initialize the Transmitor
+                transmitor = Transmitor()
+                # Initialize the Transmitor
+                modulator = Modulator()
+                # Initialize the Channel
+                channel = Channel()
+                # Initialize the Equalizer
+                equalizer = Equalizer()
+                # Initialize the NNetGenerator
+                nnetGen = NNetGenerator(parameters)
+                # Initialize the Detector
+                detector = Detector(transmitor)
+                # Initialize the Demodulator
+                demodulator = Demodulator()
+                
+                X, y, bits_in, bhat_out, symb_in, symb_out = generateDataset(nbrOfObservations, parameters, transmitor, modulator, equalizer, nnetGen, demodulator, detector, isGaussian)
+                
+                # saving the dataset
+                file_saved_name = "../data/new/data_power_"+str(power)+"_nsymbols_"+str(nsymbols)+"_M_"+str(M)+".npz"
+                np.savez_compressed(file_saved_name, X=X, y=y, bits_in=bits_in, bhat_out=bhat_out, symb_in=symb_in, symb_out=symb_out)
+
+                print("[INFO] Saved generated data for power = ", power, " , nsymbols = ",nsymbols , " , M = ",M)
+
+#-----------------------------------------------------------------------------------------#
+
+# Generating the dataset
+def generateDataset_old(nbrOfObservations, parameters, transmitor, modulator, nnetGen, isGaussian =False):
 
     X = np.ndarray((nbrOfObservations, parameters.N), dtype=np.complex128)
     y = np.ndarray((nbrOfObservations, parameters.N), dtype=np.complex128)
@@ -813,4 +932,37 @@ def test_ypred(y_pred, parameter):
 
     plt.show()
     
+#-----------------------------------------------------------------------------------------#
+
+def evaluate_model(model, X_test, y_test, index_pred, opti, train_err, val_err):
+    """ Test a trained model.
+        @param model        : an instence of the NeuralNetwork class
+        @param opti         : the used optimzer name in str format. used in the plot
+        @param train_err    : Training error array
+        @param opti         : Validation error array
+    """
+    # Training and validation error plot
+    n = len(train_err)
+    training, = plt.plot(range(n), train_err, label="Training Error")
+    validation, = plt.plot(range(n), val_err, label="Validation Error")
+    plt.legend(handles=[training, validation])
+    plt.title("Error Plot using "+str(opti))
+    plt.ylabel('Error')
+    plt.xlabel('Iterations')
+    plt.show()
+    
+    y_pred = model.predict(X_test[index_pred])
+    
+    plt.title("Predicted Signal")
+    plt.plot(np.squeeze(np.abs(y_pred)))
+    plt.show()
+    
+    plt.title("Predicted Signal vs Original")
+    plt.plot(np.squeeze(np.abs(y_pred)), label="prediction")
+    plt.plot(np.squeeze(np.abs(y_test[index_pred])), label="original")
+    plt.legend()
+    plt.show()
+    
+    return y_pred
+
 #-----------------------------------------------------------------------------------------#

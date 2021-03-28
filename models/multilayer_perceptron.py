@@ -8,8 +8,6 @@ sys.path.append("C:/Users/admin/Desktop/IP Paris/MICAS/Cours/910/913 - Deep Lear
 
 # Import helper functions
 from networks import NeuralNetwork
-from utils import train_test_split, to_categorical, normalize, Plot
-from utils import get_random_subsets, shuffle_data, accuracy_score
 from optimization.optimizers import StochasticGradientDescent, Adam, RMSprop, Adagrad, Adadelta
 from networks.loss_functions import CrossEntropy, SquareLoss
 from utils.misc import bar_widgets

@@ -29,8 +29,6 @@ class Equalizer :
         # back to time
         qzte = np.fft.ifft(qzfe)
 
-        print("[Equalizer] qzte :",qzte)
-        print("[Equalizer] qzfe :",qzfe)
         return qzte, qzfe
 
     #-------------------------------------------------------------------------------------------------#

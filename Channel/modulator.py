@@ -9,7 +9,8 @@ class Modulator :
 
     #-------------------------------------------------------------------------------------------------#
     
-    def mod(self, t,S, B):
+    def mod(self, t, s, B):
+
         """ Modulate symbols data.
             @param t : time.
             @param s : sequence of symbols.
