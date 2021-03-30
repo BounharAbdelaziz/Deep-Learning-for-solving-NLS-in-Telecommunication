@@ -5,7 +5,7 @@ import scipy.constants as scipy_cst
 class Parameters :
     
     
-    def __init__(self, bandwidth = 1, nsymbols=256, M = 16, Nt= 2**10, nLayers=100, timeMesh=200):
+    def __init__(self, bandwidth = 1, nsymbols=16, M = 16, Nt= 2**10, nLayers=100, timeMesh=200):
         
         # distance variables are converted in km
         #--------------------------------- variables ------------------------------------------------------#
@@ -13,7 +13,7 @@ class Parameters :
         # distance
         self.L = 1#1000e3
         # bandwidth - 1 GHz
-        self.B = bandwidth #1.2
+        self.B = bandwidth
 
         #---------------------------------- physical constants --------------------------------------------#
 
@@ -94,7 +94,7 @@ class Parameters :
         self.eps = self.z / self.nz
         
         # Amplitude for AWGN
-        self.A = 2
+        self.A = 1
         self.s = 2
     
     def setN(self,n):

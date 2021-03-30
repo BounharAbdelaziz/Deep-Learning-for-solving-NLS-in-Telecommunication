@@ -25,11 +25,26 @@ class Equalizer :
         # input in frequency
         qzf = np.fft.fft(qzt)
         # output in frequency        
-        qzfe = np.multiply(qzf,hwz_1)
+        qzfe = qzf*hwz_1
         # back to time
         qzte = np.fft.ifft(qzfe)
+        
 
         return qzte, qzfe
 
+    def H(self,f, z):
+        w = 2 * np.pi * f
+        return np.exp(1j*z*w**2)
+
+    def Hinv(self,f, z):
+        return np.reciprocal(self.H(f, z))
     #-------------------------------------------------------------------------------------------------#
-    
+    def equalize_(self,t, qzt, z):
+        f = np.fft.fftfreq(t.size, 2*t[-1]/t.size)  # get the f vector from t vector
+
+        qzf = np.fft.fft(qzt)  # input in frequency
+        qzfe = qzf * self.Hinv(f, z)  # output in frequency
+
+        qzte = np.fft.ifft(qzfe) # back to time
+
+        return qzte, qzfe

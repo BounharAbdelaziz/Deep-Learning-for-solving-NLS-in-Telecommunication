@@ -24,10 +24,13 @@ class Modulator :
 
         lRange = np.linspace(l1, l2, num=Ns, endpoint=True)
 
-        q0t = 0# np.zeros((1, t.size), dtype=np.complex64)
+        q0t = np.zeros((1, t.size), dtype=np.complex64) #q0t = 0
 
         for sl, l in zip(s, lRange):
             q0t += sl * np.sinc(B*t - l)
+
+        norm = np.linalg.norm(q0t)
+        q0t = q0t/norm
 
         return np.sqrt(B)*q0t
 

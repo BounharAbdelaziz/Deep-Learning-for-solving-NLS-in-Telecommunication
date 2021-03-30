@@ -1,4 +1,6 @@
 import numpy as np
+from matplotlib.ticker import MultipleLocator
+import matplotlib.pyplot as plt
 
 class Transmitor :
 
@@ -119,3 +121,26 @@ class Transmitor :
         return  bin, complex(reAxis[reIndex], imAxis[imIndex])
     
     #-------------------------------------------------------------------------------------------------#
+
+    def plot_constellation(self, M, constellation, binaryStr):
+
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111)
+        fig.suptitle(f'{M}-QAM Constellation')
+        ax.set_xlabel('Real part')
+        ax.set_ylabel('Imaginary part')
+
+        ax.scatter(constellation.real, constellation.imag)
+
+        for i, str_bin in enumerate(binaryStr):
+            ax.annotate(str_bin, (constellation.real[i], constellation.imag[i]),
+                        xytext=(constellation.real[i]-0.2, constellation.imag[i]-0.2))
+
+        ax.axis([-(np.sqrt(M)//2)-1, np.sqrt(M)/2+1, -(np.sqrt(M)//2)-1, np.sqrt(M)/2+1])
+        ax.axhline(y=0, color='black')
+        ax.axvline(x=0, color='black')
+
+        ax.xaxis.set_major_locator(MultipleLocator(1))
+        ax.yaxis.set_major_locator(MultipleLocator(1))
+        
+        plt.show()
