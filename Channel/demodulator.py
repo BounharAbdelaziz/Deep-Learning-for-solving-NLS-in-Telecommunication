@@ -10,15 +10,12 @@ class Demodulator :
         l2 = int((Ns/2) - 1)
         
         lRange = np.linspace(l1, l2, num=Ns, endpoint=True)
-        
+
         for j, l in enumerate(lRange):
             for i, ti in enumerate(t):
                 sl[j] += qzte[0, i] * np.sinc(B*ti-l) * dt
 
         shat = np.sqrt(B)*sl
-
-        norm = np.linalg.norm(shat)
-        shat = shat/norm
 
         return shat
 

@@ -29,9 +29,6 @@ class Modulator :
         for sl, l in zip(s, lRange):
             q0t += sl * np.sinc(B*t - l)
 
-        norm = np.linalg.norm(q0t)
-        q0t = q0t/norm
-
         return np.sqrt(B)*q0t
 
     #-------------------------------------------------------------------------------------------------#
