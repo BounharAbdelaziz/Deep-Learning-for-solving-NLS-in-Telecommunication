@@ -15,6 +15,7 @@ class Transmitor :
             @param N : Length of the bit sequence
             @param p : probability of 0
         """
+        # number of experiences
         n=1
         return np.random.binomial(n, p, size=N)
 
@@ -38,45 +39,9 @@ class Transmitor :
 
     #-------------------------------------------------------------------------------------------------#
 
-    def build_constellations_2(self, M):
-    
-        """ Builds a M-QAM constellation.
-            @param M : Number of symbols.
-        """
-        
-        # Sequential address from 0 to M-1 (1xM dimension)
-        n = np.arange(0,M)
-        #convert linear addresses to Gray code
-        a = np.asarray([x^(x>>1) for x in n])
-        #Dimension of K-Map - N x N matrix
-        D = np.sqrt(M).astype(int) 
-        # NxN gray coded matrix
-        a = np.reshape(a,(D,D))
-        # identify alternate rows
-        oddRows=np.arange(start = 1, stop = D ,step=2) 
-        
-        # reshape to 1xM - Gray code walk on KMap
-        nGray=np.reshape(a,(M)) 
-        
-        #element-wise quotient and remainder
-        (x,y)=np.divmod(nGray,D) 
-        # PAM Amplitudes 2d+1-D - real axis
-        Ax=2*x+1-D 
-        # PAM Amplitudes 2d+1-D - imag axis
-        Ay=2*y+1-D 
-        constellation = Ax+1j*Ay
-        
-        self.constellation = constellation
-
-        return constellation
-
-
-    #-------------------------------------------------------------------------------------------------#
-
     def bit_to_symb(self, b, M=16):
         """ Creates a mapping between bits sequences and symbols.
             @param b : N-bit sequence
-            @param cnt : constellation
             @param M : Number of symbols in the constellation
         """
 
@@ -144,3 +109,40 @@ class Transmitor :
         ax.yaxis.set_major_locator(MultipleLocator(1))
         
         plt.show()
+
+    #-------------------------------------------------------------------------------------------------#
+    
+    def build_constellations_2(self, M):
+    
+        """ Builds a M-QAM constellation.
+            @param M : Number of symbols.
+        """
+        
+        # Sequential address from 0 to M-1 (1xM dimension)
+        n = np.arange(0,M)
+        #convert linear addresses to Gray code
+        a = np.asarray([x^(x>>1) for x in n])
+        #Dimension of K-Map - N x N matrix
+        D = np.sqrt(M).astype(int) 
+        # NxN gray coded matrix
+        a = np.reshape(a,(D,D))
+        # identify alternate rows
+        oddRows=np.arange(start = 1, stop = D ,step=2) 
+        
+        # reshape to 1xM - Gray code walk on KMap
+        nGray=np.reshape(a,(M)) 
+        
+        #element-wise quotient and remainder
+        (x,y)=np.divmod(nGray,D) 
+        # PAM Amplitudes 2d+1-D - real axis
+        Ax=2*x+1-D 
+        # PAM Amplitudes 2d+1-D - imag axis
+        Ay=2*y+1-D 
+        constellation = Ax+1j*Ay
+        
+        self.constellation = constellation
+
+        return constellation
+
+
+    #-------------------------------------------------------------------------------------------------#
