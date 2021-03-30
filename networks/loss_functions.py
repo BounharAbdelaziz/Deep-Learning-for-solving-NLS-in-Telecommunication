@@ -8,6 +8,9 @@ from utils import accuracy_score
 from networks.activation_functions import Sigmoid
 
 class Loss(object):
+
+    """ Parent class """
+    
     def loss(self, y_true, y_pred):
         return NotImplementedError()
 
@@ -18,6 +21,9 @@ class Loss(object):
         return 0
 
 class SquareLoss(Loss):
+
+    """ Compensate the problem of MSE in this case. """
+
     def __init__(self): pass
 
     def loss(self, y, y_pred):
@@ -27,6 +33,11 @@ class SquareLoss(Loss):
         return -(y - y_pred)
 
 class MSE(Loss):
+
+    """ Not good to train in our project, the vector y has a len of 2048, and the mean value is 0.04. 
+        The loss will be so small and the network won't learn from it !
+    """
+
     def __init__(self): pass
 
     def loss(self, y, y_pred):
@@ -36,6 +47,9 @@ class MSE(Loss):
         return -(2/len(y))*(y - y_pred)
 
 class CrossEntropy(Loss):
+
+    """ Used in the bits-to-bits model """
+
     def __init__(self): pass
 
     def loss(self, y, p):
@@ -50,5 +64,3 @@ class CrossEntropy(Loss):
         # Avoid division by zero
         p = np.clip(p, 1e-15, 1 - 1e-15)
         return - (y / p) + (1 - y) / (1 - p)
-
-
