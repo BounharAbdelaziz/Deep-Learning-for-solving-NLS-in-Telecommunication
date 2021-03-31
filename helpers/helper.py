@@ -27,12 +27,12 @@ from nnet_Generator.NNetGenerator import *
 #-----------------------------------------------------------------------------------------#
 
 # Generating the dataset
-def generateDataset(nbrOfObservations, parameters, transmitor, modulator, equalizer, nnetGen, demodulator, detector, isGaussian =False):
+def generateDataset(nbrOfObservations, parameters, transmitor, modulator, nnetGen, demodulator, detector, isGaussian =False):
 
     X = np.ndarray((nbrOfObservations, parameters.N), dtype=np.complex128)
     y = np.ndarray((nbrOfObservations, parameters.N), dtype=np.complex128)    
-    bits_in = np.ndarray((nbrOfObservations, parameters.nb), dtype=np.int)
-    bhat_out = np.ndarray((nbrOfObservations, parameters.nb), dtype=np.int)
+    bits_in = np.ndarray((nbrOfObservations, parameters.nb))
+    bhat_out = np.ndarray((nbrOfObservations, parameters.nb))
     symb_in = np.ndarray((nbrOfObservations, parameters.n))
     symb_out = np.ndarray((nbrOfObservations, parameters.n))
 
@@ -86,7 +86,7 @@ def generateDataset(nbrOfObservations, parameters, transmitor, modulator, equali
 
         symb_in[i] = np.squeeze(s)
         # estimated symbol sequence
-        symb_out[i] = np.squeeze(stilde)
+        symb_out[i] = np.squeeze(shat)
         
     print("[INFO] The dataset is ready now !")
 
